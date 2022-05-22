@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
+from datetime import date
 
 # Create your models here.
 
@@ -27,6 +29,10 @@ class Author(models.Model):
 
     def __str__(self):
         return self.last_name
+
+    def get_absolute_url(self):
+        #Возвращает URL-адрес для доступа к определенному экземпляру книги.
+        return reverse('author-detail', args=[str(self.id)])
 
 
 class Book(models.Model):
@@ -63,7 +69,26 @@ class BookInstance(models.Model):
     imprint = models.CharField(max_length=200, help_text='Введите издательство и год выпуска', verbose_name='Издательство')
     status = models.ForeignKey('Status', on_delete=models.CASCADE, null=True, help_text='Изменить состояние экземпляра', verbose_name='Статус экземпляра книги')
     due_back = models.DateField(null=True, blank=True, help_text='Введите конец срока статуса', verbose_name='Дата окончание статуса')
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,verbose_name='Заказчик', help_text='Выберите заказчика книги')
 
     def __str__(self):
         return '%s %s %s' % (self.inv_now, self.book, self.status)
+
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
+
+    LOAN_STATUS = (
+        ('1', 'На складе'),
+        ('2', 'В заказе'),
+        ('3', 'Продана'))
+
+    status = models.CharField(
+        max_length=1,
+        choices=LOAN_STATUS,
+        blank=True,
+        default='1',
+        help_text='На складе')
 

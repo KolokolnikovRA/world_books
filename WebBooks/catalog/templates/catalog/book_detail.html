@@ -9,7 +9,7 @@
     <p><strong>Язык: </strong>{{book.language}}</p> 
     {% for author in book.author.all %}
         <p><strong>Автор: </strong>
-            <a href="">{{author.first_name}}
+            <a href="{{ author.get_absolute_url }}">{{author.first_name}}
                         {{author.last_name}}</a></p>
     {% endfor %}
     <div style="margin-left:20px; margin-top:20px">
